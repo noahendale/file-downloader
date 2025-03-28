@@ -22,7 +22,6 @@ import { STATUS_AVAILABLE, COLOR_PRIMARY } from '../utilities/constants';
 
 const Table = () => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-  const tableHeadings = Object.keys(files[0]);
 
   const handleFileSelection = (e: React.SyntheticEvent, name: string) => {
     selectedFiles.includes(name) ?
@@ -87,9 +86,10 @@ const Table = () => {
         <thead>
           <tr className='table-header' tabIndex={0}>
             <th aria-hidden="true"></th>
-            {tableHeadings.map((heading, index) => (
-              <th key={index} className="header__item capitalize">{heading}</th>
-            ))}
+            <th key={1} className="header__item capitalize">Name</th>
+            <th key={2} className="header__item capitalize">Device</th>
+            <th key={3} className="header__item capitalize">Path</th>
+            <th key={4} className="header__item capitalize">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -97,6 +97,7 @@ const Table = () => {
             <tr
               key={file.name}
               id={file.name}
+              data-testid='tableBodyRow'
               className='table-row'
               onClick={(e) => handleFileSelection(e, file?.name)}
               onKeyDown={(e) => {
