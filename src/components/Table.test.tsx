@@ -18,8 +18,6 @@ describe('Table Component', () => {
   
   test('clicking a row selects the file', () => {
     render(<Table />);
-    // Check files for a file with status 'available'
-    const availableFiles = files.filter(file => file.status === 'available')[0];
     
     const row = screen.getByRole('row', { name: /netsh\.exe/i });
     expect(row).not.toHaveClass('selected');
