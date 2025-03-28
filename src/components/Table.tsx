@@ -39,6 +39,13 @@ const Table = () => {
         :
           <CheckBoxOutlineBlankIcon/>}
         </button>
+        <span className="header__item">
+          {selectedFiles.length === 0 ?
+            'None selected'
+          :
+            `${selectedFiles.length} selected`
+          }
+        </span>
         <button className="header__item">Download Selected</button>
       </div>
       <table>
