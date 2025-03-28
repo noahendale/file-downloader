@@ -1,6 +1,6 @@
 main {
   text-align: left;
-  padding: 10px;
+  padding: 1rem;
 }
 
 table {
@@ -39,4 +39,13 @@ button {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+.green-circle {
+  width: 10px;
+  height: 10px;
+  background-color: green;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
 }

@@ -45,11 +45,21 @@ const Table = () => {
     }
     // loop through availableFiles, find the tr element with the id of the file name, and toggle the 'selected' class
     availableFiles.forEach(file => {
-      const row = document.getElementById(file.name);
+      const row = document.getElementById(file.name); // document.querySelector doesn't like the dot (.) in the file name
       if (row) {
         row.classList.toggle('selected');
       }
     });
+  }
+
+  const handleDownloadSelectedFiles = () => {
+    if (selectedFiles.length === 0) {
+      alert('No files selected');
+      return;
+    }
+    const selectedFilesData = files.filter(file => selectedFiles.includes(file.name));
+    const selectedFilesString = selectedFilesData.map(file => `${file.name} (${file.device})`).join(', ');
+    alert(`Downloading ${selectedFilesString}`);
   }
 
   return (
@@ -65,15 +75,15 @@ const Table = () => {
           aria-label="Select all files"
         >
           {getSelectAllCheckboxState()}
+          <span className="header__item">
+            {selectedFiles.length === 0 ?
+              'None selected'
+            :
+              `${selectedFiles.length} selected`
+            }
+          </span>
         </button>
-        <span className="header__item">
-          {selectedFiles.length === 0 ?
-            'None selected'
-          :
-            `${selectedFiles.length} selected`
-          }
-        </span>
-        <button className="header__item" aria-label="Download selected files">
+        <button className="header__item" aria-label="Download selected files" onClick={handleDownloadSelectedFiles}>
           <DownloadIcon />
           Download Selected
         </button>
@@ -111,7 +121,14 @@ const Table = () => {
               <td className="table-cell">{file?.name}</td>
               <td className="table-cell">{file?.device}</td>
               <td className="table-cell">{file?.path}</td>
-              <td className="table-cell capitalize">{file?.status}</td>
+              <td className="table-cell capitalize">
+                {
+                  <>
+                    {file?.status === STATUS_AVAILABLE && <div className='green-circle'></div>}
+                    {file?.status}
+                  </>
+                }
+              </td>
             </tr>
           ))}
         </tbody>
