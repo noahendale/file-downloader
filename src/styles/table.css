@@ -6,15 +6,15 @@ main {
 table {
   border-left: 1px solid lightgrey;
   border-right: 1px solid lightgrey;
+  width: 100%;
 }
 
 table, th, td {
-  border-top: 1px solid lightgrey;
   border-bottom: 1px solid lightgrey;
   border-collapse: collapse;
 }
 
-td {
+th, td {
   padding: 10px;
 }
 
@@ -34,11 +34,30 @@ td {
   background-color: #eeeeee;
 }
 
-button {
+.header-button {
   appearance: none;
   border: none;
   background: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  padding: 0;
+
+  &:first-child {
+    margin-right: 2rem;
+  }
+
+  svg {
+    margin-right: 0.5rem;
+  }
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid lightgrey;
+  padding: 10px;
 }
 
 .green-circle {

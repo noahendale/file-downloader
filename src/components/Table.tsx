@@ -6,6 +6,10 @@
 // 3. All files have a name, device, path, and status
 // 4. Only need to suppport English
 // 5. Only need to support desktop screens
+//  5a. If mobile was a requirement, I would use a different approach to display the data such as divs with flexbox or grid instead of a table
+
+
+// TODO: MEMOIZE??
 
 import React, { useState } from 'react';
 import '../styles/table.css';
@@ -14,16 +18,13 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import DownloadIcon from '@mui/icons-material/Download';
 import files from '../data/files.ts';
-import { STATUS_AVAILABLE, COLOR_PRIMARY, STATUS_SCHEDULED } from '../utilities/constants';
+import { STATUS_AVAILABLE, COLOR_PRIMARY } from '../utilities/constants';
 
 const Table = () => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const tableHeadings = Object.keys(files[0]);
 
-  const availableFiles = files.filter(file => file.status === STATUS_AVAILABLE);
-
-  const handleFileSelection = (e: React.SyntheticEvent, name: string, status: string) => {
-    if (status === STATUS_SCHEDULED) return;
+  const handleFileSelection = (e: React.SyntheticEvent, name: string) => {
     selectedFiles.includes(name) ?
       setSelectedFiles(selectedFiles.filter(selectedFile => selectedFile !== name))
     :
@@ -33,23 +34,20 @@ const Table = () => {
 
   const getSelectAllCheckboxState = () => {
     if (selectedFiles.length === 0) return <CheckBoxOutlineBlankIcon/>;
-    else if (selectedFiles.length === availableFiles.length) return <CheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
+    else if (selectedFiles.length === files.length) return <CheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
     return <IndeterminateCheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
   }
 
   const handleSelectAllFiles = () => {
-    if (selectedFiles.length === availableFiles.length) {
+    const allRows = document.querySelectorAll('.table-row');
+
+    if (selectedFiles.length === files.length) {
       setSelectedFiles([]);
+      allRows.forEach(row => row.classList.remove('selected'));
     } else {
-      setSelectedFiles(availableFiles.map(file => file.name));
+      setSelectedFiles(files.map(file => file.name));
+      allRows.forEach(row => row.classList.add('selected'));
     }
-    // loop through availableFiles, find the tr element with the id of the file name, and toggle the 'selected' class
-    availableFiles.forEach(file => {
-      const row = document.getElementById(file.name); // document.querySelector doesn't like the dot (.) in the file name
-      if (row) {
-        row.classList.toggle('selected');
-      }
-    });
   }
 
   const handleDownloadSelectedFiles = () => {
@@ -57,33 +55,30 @@ const Table = () => {
       alert('No files selected');
       return;
     }
-    const selectedFilesData = files.filter(file => selectedFiles.includes(file.name));
-    const selectedFilesString = selectedFilesData.map(file => `${file.name} (${file.device})`).join(', ');
+    const selectedAndAvailableFiles = files.filter(file => selectedFiles.includes(file.name) && file.status === STATUS_AVAILABLE);
+    const selectedFilesString = selectedAndAvailableFiles.map(file => `${file.name} (${file.device})`).join(', ');
     alert(`Downloading ${selectedFilesString}`);
   }
 
   return (
     <main>
-      <div className="table-header">
+      <div className="button-container">
         <button
-          className="header__item"
+          className="header-button"
           onClick={handleSelectAllFiles}
-          onKeyDown={(e) => {
-            if (e.code === "Enter" || e.code === "Space") handleSelectAllFiles();
-          }}
           tabIndex={0}
           aria-label="Select all files"
         >
           {getSelectAllCheckboxState()}
-          <span className="header__item">
+          <span>
             {selectedFiles.length === 0 ?
-              'None selected'
+              'None Selected'
             :
-              `${selectedFiles.length} selected`
+              `Selected ${selectedFiles.length}`
             }
           </span>
         </button>
-        <button className="header__item" aria-label="Download selected files" onClick={handleDownloadSelectedFiles}>
+        <button className="header-button" aria-label="Download selected files" onClick={handleDownloadSelectedFiles}>
           <DownloadIcon />
           Download Selected
         </button>
@@ -91,7 +86,7 @@ const Table = () => {
       <table tabIndex={0}>
         <thead>
           <tr className='table-header' tabIndex={0}>
-            <th></th>
+            <th aria-hidden="true"></th>
             {tableHeadings.map((heading, index) => (
               <th key={index} className="header__item capitalize">{heading}</th>
             ))}
@@ -103,9 +98,9 @@ const Table = () => {
               key={file.name}
               id={file.name}
               className='table-row'
-              onClick={(e) => handleFileSelection(e, file?.name, file?.status)}
+              onClick={(e) => handleFileSelection(e, file?.name)}
               onKeyDown={(e) => {
-                if ((e.code === "Enter" || e.code === "Space")) handleFileSelection(e, file.name, file?.status);
+                if ((e.code === "Enter" || e.code === "Space")) handleFileSelection(e, file.name);
               }}
               tabIndex={0}
             >
@@ -116,8 +111,6 @@ const Table = () => {
                   <CheckBoxOutlineBlankIcon/>
                 }
               </td>
-              {/* <td className="table-cell"><CheckBoxIcon style={{color: colorPrimary}}/></td> */}
-              {/* <td className="table-cell"><input type="checkbox" className="table-cell" disabled={file.status === 'scheduled'} /></td> */}
               <td className="table-cell">{file?.name}</td>
               <td className="table-cell">{file?.device}</td>
               <td className="table-cell">{file?.path}</td>
