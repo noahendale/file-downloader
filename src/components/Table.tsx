@@ -12,15 +12,18 @@ import '../styles/table.css';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
+import DownloadIcon from '@mui/icons-material/Download';
 import files from '../data/files.ts';
-import { STATUS_SCHEDULED, COLOR_PRIMARY } from '../utilities/constants';
+import { STATUS_AVAILABLE, COLOR_PRIMARY, STATUS_SCHEDULED } from '../utilities/constants';
 
 const Table = () => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const tableHeadings = Object.keys(files[0]);
 
-  const handleFileSelection = (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>, name: string, status: string) => {
-    if (status === STATUS_SCHEDULED) return;  
+  const availableFiles = files.filter(file => file.status === STATUS_AVAILABLE);
+
+  const handleFileSelection = (e: React.SyntheticEvent, name: string, status: string) => {
+    if (status === STATUS_SCHEDULED) return;
     selectedFiles.includes(name) ?
       setSelectedFiles(selectedFiles.filter(selectedFile => selectedFile !== name))
     :
@@ -28,16 +31,40 @@ const Table = () => {
     e.currentTarget.classList.toggle('selected');
   }
 
+  const getSelectAllCheckboxState = () => {
+    if (selectedFiles.length === 0) return <CheckBoxOutlineBlankIcon/>;
+    else if (selectedFiles.length === availableFiles.length) return <CheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
+    return <IndeterminateCheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
+  }
+
+  const handleSelectAllFiles = () => {
+    if (selectedFiles.length === availableFiles.length) {
+      setSelectedFiles([]);
+    } else {
+      setSelectedFiles(availableFiles.map(file => file.name));
+    }
+    // loop through availableFiles, find the tr element with the id of the file name, and toggle the 'selected' class
+    availableFiles.forEach(file => {
+      const row = document.getElementById(file.name);
+      if (row) {
+        row.classList.toggle('selected');
+      }
+    });
+  }
+
   return (
     <main>
       <div className="table-header">
-        <button className="header__item">
-        {selectedFiles.length > 0 ?
-          <IndeterminateCheckBoxIcon
-            style={{color: COLOR_PRIMARY}}
-          />
-        :
-          <CheckBoxOutlineBlankIcon/>}
+        <button
+          className="header__item"
+          onClick={handleSelectAllFiles}
+          onKeyDown={(e) => {
+            if (e.code === "Enter" || e.code === "Space") handleSelectAllFiles();
+          }}
+          tabIndex={0}
+          aria-label="Select all files"
+        >
+          {getSelectAllCheckboxState()}
         </button>
         <span className="header__item">
           {selectedFiles.length === 0 ?
@@ -46,11 +73,14 @@ const Table = () => {
             `${selectedFiles.length} selected`
           }
         </span>
-        <button className="header__item">Download Selected</button>
+        <button className="header__item" aria-label="Download selected files">
+          <DownloadIcon />
+          Download Selected
+        </button>
       </div>
-      <table>
+      <table tabIndex={0}>
         <thead>
-          <tr className='table-header'>
+          <tr className='table-header' tabIndex={0}>
             <th></th>
             {tableHeadings.map((heading, index) => (
               <th key={index} className="header__item capitalize">{heading}</th>
@@ -58,8 +88,17 @@ const Table = () => {
           </tr>
         </thead>
         <tbody>
-          {files.map((file, index) => (
-            <tr key={file.name} className={`table-row `} onClick={(e) => handleFileSelection(e, file?.name, file?.status)}>
+          {files.map((file) => (
+            <tr
+              key={file.name}
+              id={file.name}
+              className='table-row'
+              onClick={(e) => handleFileSelection(e, file?.name, file?.status)}
+              onKeyDown={(e) => {
+                if ((e.code === "Enter" || e.code === "Space")) handleFileSelection(e, file.name, file?.status);
+              }}
+              tabIndex={0}
+            >
               <td className="table-cell">
                 {selectedFiles.includes(file?.name) ?
                   <CheckBoxIcon style={{color: COLOR_PRIMARY}}/>
