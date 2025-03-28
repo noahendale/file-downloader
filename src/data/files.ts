@@ -1,4 +1,11 @@
-const files = [
+interface IFile {
+  name: string,
+  device: string,
+  path: string,
+  status: 'scheduled' | 'available'
+};
+
+const files: IFile[] = [
   {
     name: 'smss.exe',
     device: 'Mario',
