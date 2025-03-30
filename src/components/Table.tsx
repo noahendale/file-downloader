@@ -11,7 +11,7 @@
 
 // TODO: MEMOIZE??
 
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import '../styles/table.css';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -31,13 +31,13 @@ const Table = () => {
     e.currentTarget.classList.toggle('selected');
   }
 
-  const getSelectAllCheckboxState = () => {
-    if (selectedFiles.length === 0) return <CheckBoxOutlineBlankIcon/>;
-    else if (selectedFiles.length === files.length) return <CheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
-    return <IndeterminateCheckBoxIcon style={{color: COLOR_PRIMARY}}/>;
-  }
+  const getSelectAllCheckboxState = useMemo(() => {
+    if (selectedFiles.length === 0) return <CheckBoxOutlineBlankIcon />;
+    else if (selectedFiles.length === files.length) return <CheckBoxIcon style={{ color: COLOR_PRIMARY }} />;
+    return <IndeterminateCheckBoxIcon style={{ color: COLOR_PRIMARY }} />;
+  }, [selectedFiles]);
 
-  const handleSelectAllFiles = () => {
+  const handleSelectAllFiles = useCallback(() => {
     const allRows = document.querySelectorAll('.table-row');
 
     if (selectedFiles.length === files.length) {
@@ -47,17 +47,22 @@ const Table = () => {
       setSelectedFiles(files.map(file => file.name));
       allRows.forEach(row => row.classList.add('selected'));
     }
-  }
+  }, [selectedFiles]);
 
-  const handleDownloadSelectedFiles = () => {
+  const handleDownloadSelectedFiles = useCallback(() => {
     if (selectedFiles.length === 0) {
       alert('No files selected');
       return;
     }
     const selectedAndAvailableFiles = files.filter(file => selectedFiles.includes(file.name) && file.status === STATUS_AVAILABLE);
+
+    if (selectedAndAvailableFiles.length === 0) {
+      alert('Files selected are not available for download');
+      return;
+    }
     const selectedFilesString = selectedAndAvailableFiles.map(file => `${file.name} (${file.device})`).join(', ');
     alert(`Downloading ${selectedFilesString}`);
-  }
+  }, [selectedFiles]);
 
   return (
     <main>
@@ -68,7 +73,7 @@ const Table = () => {
           tabIndex={0}
           aria-label="Select all files"
         >
-          {getSelectAllCheckboxState()}
+          {getSelectAllCheckboxState}
           <span>
             {selectedFiles.length === 0 ?
               'None Selected'
