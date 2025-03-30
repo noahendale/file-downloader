@@ -3,13 +3,15 @@
 // Assumptions
 // 1. All file names are unique
 // 2. The data is static and doesn't need to be fetched from an API
-// 3. All files have a name, device, path, and status
+// 3. All files have a name, device, path, and status (and they are all strings)
 // 4. Only need to suppport English
 // 5. Only need to support desktop screens
 //  5a. If mobile was a requirement, I would use a different approach to display the data such as divs with flexbox or grid instead of a table
 
-
-// TODO: MEMOIZE??
+// If I had more time, I would
+// 1. Adjust HTML/CSS to support mobile screens
+// 2. Create a mock API to fetch the data instead of using static data
+// 3. Add filtering and sorting functionality
 
 import React, { useCallback, useMemo, useState } from 'react';
 import '../styles/table.css';
